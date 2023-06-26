@@ -1,0 +1,21 @@
+Sub PasteFromClipboard()
+
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Adjust as necessary
+    
+    ' Find the last row with data in column A
+    Dim lastRow As Long
+    lastRow = ws.Cells(ws.Rows.Count, "A").End(xlUp).Row
+    
+    ' If data already exists in column A starting from A2, paste data from the next row
+    ' Otherwise, paste data starting from A2
+    If lastRow >= 2 Then
+        lastRow = lastRow + 1
+    Else
+        lastRow = 2
+    End If
+    
+    ' Paste data from the clipboard
+    ws.Cells(lastRow, "A").PasteSpecial Paste:=xlPasteAll
+
+End Sub
