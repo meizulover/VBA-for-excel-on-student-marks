@@ -1,0 +1,88 @@
+Sub CalculateStatistics()
+
+    Dim ws As Worksheet
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' Adjust as necessary
+    
+    Dim totalStudents As Long
+    Dim totalScore As Double
+    Dim averageScore As Double
+    Dim highestScore As Double
+    Dim lowestScore As Double
+    Dim excellentRate As Double
+    Dim failRate As Double
+    
+    Dim score As Range
+    Dim excellentCount As Long
+    Dim failCount As Long
+    
+    Dim scores As New Collection
+    Dim cell As Range
+    
+    ' Define the range of scores (entire column A), add to collection if numeric
+    For Each cell In ws.Range("A1:A" & ws.Cells(ws.Rows.Count, "A").End(xlUp).Row)
+        If IsNumeric(cell.Value) And Not IsEmpty(cell.Value) Then
+            scores.Add cell
+        End If
+    Next cell
+    
+    totalStudents = scores.Count
+    
+    ' Accumulate total score and count excellent and fail scores
+    totalScore = 0
+    excellentCount = 0
+    failCount = 0
+    
+    ' Score segmentation
+    Dim scoreSegments(1 To 7) As Long
+    
+    For Each score In scores
+        totalScore = totalScore + score.Value
+        If score.Value >= 90 Then
+            excellentCount = excellentCount + 1
+            scoreSegments(2) = scoreSegments(2) + 1
+            If score.Value = 100 Then
+                scoreSegments(1) = scoreSegments(1) + 1
+            End If
+        ElseIf score.Value >= 80 Then
+            scoreSegments(3) = scoreSegments(3) + 1
+        ElseIf score.Value >= 70 Then
+            scoreSegments(4) = scoreSegments(4) + 1
+        ElseIf score.Value >= 60 Then
+            scoreSegments(5) = scoreSegments(5) + 1
+        ElseIf score.Value >= 50 Then
+            scoreSegments(6) = scoreSegments(6) + 1
+        Else
+            scoreSegments(7) = scoreSegments(7) + 1
+            failCount = failCount + 1
+        End If
+    Next score
+
+    ' Check if there are any students before calculating average and rates
+    If totalStudents > 0 Then
+        averageScore = totalScore / totalStudents
+        excellentRate = excellentCount / totalStudents
+        failRate = failCount / totalStudents
+    End If
+
+    ' Get highest and lowest scores
+    highestScore = Application.WorksheetFunction.Max(ws.Range("A:A"))
+    lowestScore = Application.WorksheetFunction.Min(ws.Range("A:A"))
+    
+    ' Place calculated values in the worksheet
+    ws.Range("B2").Value = totalScore
+    ws.Range("C2").Value = totalStudents
+    ws.Range("D2").Value = averageScore
+    ws.Range("E2").Value = highestScore
+    ws.Range("F2").Value = lowestScore
+    ws.Range("G2").Value = excellentRate
+    ws.Range("G2").NumberFormat = "0.00%"
+    ws.Range("H2").Value = failRate
+    ws.Range("H2").NumberFormat = "0.00%"
+
+    ' Output segmented counts
+    Dim i As Long
+    For i = 1 To 7
+        ws.Cells(2, 12 + i).Value = scoreSegments(i)
+    Next i
+
+End Sub
